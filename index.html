@@ -228,6 +228,29 @@
       box-shadow: 0 4px 18px rgba(2, 132, 199, 0.5);
     }
 
+    .btn-back-secondary {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      max-width: 420px;
+      margin-top: 12px;
+      padding: 13px 20px;
+      background: #334155;
+      color: #e2e8f0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-back-secondary:hover {
+      background: #475569;
+    }
+
     .btn-action:disabled {
       background: #334155 !important;
       color: #64748b !important;
@@ -736,6 +759,11 @@
         <span>Rozpocznij Mediolan</span>
         <span>🔒</span>
       </button>
+
+      <button id="btn-milan-back-to-map" class="btn-back-secondary">
+        <span>↩ Powrót do mapy</span>
+      </button>
+
       <button id="btn-skip-milan" class="btn-skip">Pomiń wstęp (wymagany kod PIN)</button>
     </div>
   </div>
@@ -780,6 +808,11 @@
         <span>Rozpocznij Bergamo</span>
         <span>🔒</span>
       </button>
+
+      <button id="btn-bergamo-back-to-map" class="btn-back-secondary">
+        <span>↩ Powrót do mapy</span>
+      </button>
+
       <button id="btn-skip-bergamo" class="btn-skip">Pomiń wstęp (wymagany kod PIN)</button>
     </div>
   </div>
@@ -800,8 +833,8 @@
         </audio>
       </div>
 
-      <button id="btn-back-to-map" class="btn-action" style="background:#334155;">
-        <span>Powrót do mapy</span>
+      <button id="btn-back-to-map" class="btn-back-secondary">
+        <span>↩ Powrót do mapy</span>
       </button>
     </div>
   </div>
@@ -944,11 +977,13 @@
     const milanTrainScreen = document.getElementById('milan-train-screen');
     const milanIntroAudio = document.getElementById('milan-intro-audio');
     const btnStartMilanMap = document.getElementById('btn-start-milan-map');
+    const btnMilanBackToMap = document.getElementById('btn-milan-back-to-map');
     const btnSkipMilan = document.getElementById('btn-skip-milan');
 
     const bergamoTrainScreen = document.getElementById('bergamo-train-screen');
     const bergamoIntroAudio = document.getElementById('bergamo-intro-audio');
     const btnStartBergamoMap = document.getElementById('btn-start-bergamo-map');
+    const btnBergamoBackToMap = document.getElementById('btn-bergamo-back-to-map');
     const btnSkipBergamo = document.getElementById('btn-skip-bergamo');
 
     const specialAirportScreen = document.getElementById('special-airport-screen');
@@ -1111,6 +1146,16 @@ ZASADY ODPOWIEDZI:
       milanUnlocked = milanStops.length;
       bergamoUnlocked = bergamoStops.length;
 
+      // Odblokuj przyciski wejścia na mapę także na ekranach pociągów
+      btnStartBologna.removeAttribute('disabled');
+      btnStartBologna.innerHTML = "<span>Rozpocznij spacer</span> ➔";
+
+      btnStartMilanMap.removeAttribute('disabled');
+      btnStartMilanMap.innerHTML = "<span>Rozpocznij Mediolan</span> ➔";
+
+      btnStartBergamoMap.removeAttribute('disabled');
+      btnStartBergamoMap.innerHTML = "<span>Rozpocznij Bergamo</span> ➔";
+
       tabMilan.style.display = 'block';
       tabBergamo.style.display = 'block';
       timeJumpContainer.style.display = 'block';
@@ -1124,7 +1169,7 @@ ZASADY ODPOWIEDZI:
       mapScreen.style.display = 'flex';
 
       initMap(currentCity, 1);
-      alert("🔓 TRYB MASTER AKTYWNY (1509)!\nWszystkie miasta, punkty audio, kafelki skoku i odcinek lotniskowy zostały odblokowane.");
+      alert("🔓 TRYB MASTER AKTYWNY (1509)!\nWszystkie miasta, pociągi, punkty audio, kafelki skoku i odcinek lotniskowy zostały odblokowane.");
     }
 
     // SPRAWDZANIE KODÓW PIN
@@ -1284,6 +1329,13 @@ ZASADY ODPOWIEDZI:
       initMap('milan', 1);
     });
 
+    // POWRÓT Z POCIĄGU MEDIOLAN NA MAPĘ
+    btnMilanBackToMap.addEventListener('click', () => {
+      stopAllAudio();
+      milanTrainScreen.style.display = 'none';
+      mapScreen.style.display = 'flex';
+    });
+
     btnToBergamo.addEventListener('click', () => {
       stopAllAudio();
       mapScreen.style.display = 'none';
@@ -1307,6 +1359,13 @@ ZASADY ODPOWIEDZI:
       mapScreen.style.display = 'flex';
       tabBergamo.style.display = 'block';
       initMap('bergamo', 1);
+    });
+
+    // POWRÓT Z POCIĄGU BERGAMO NA MAPĘ
+    btnBergamoBackToMap.addEventListener('click', () => {
+      stopAllAudio();
+      bergamoTrainScreen.style.display = 'none';
+      mapScreen.style.display = 'flex';
     });
 
     btnToAirportSpecial.addEventListener('click', () => {
