@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Przewodnik Audio: Bolonia • Mediolan • Bergamo</title>
+  <title>Przewodnik Audio + AI: Bolonia • Mediolan • Bergamo</title>
   
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
@@ -39,23 +39,22 @@
       position: relative;
     }
 
-    /* ZNACZNIK AUTORSKI W ROGU */
     .author-watermark {
       position: fixed;
-      bottom: 8px;
-      right: 12px;
-      z-index: 9999;
+      top: 16px;
+      right: 16px;
+      z-index: 1000;
       font-size: 0.72rem;
       font-weight: 600;
       letter-spacing: 0.06em;
-      color: rgba(255, 255, 255, 0.35);
-      background: rgba(15, 23, 42, 0.6);
-      padding: 3px 8px;
-      border-radius: 6px;
-      backdrop-filter: blur(4px);
+      color: rgba(255, 255, 255, 0.45);
+      background: rgba(15, 23, 42, 0.75);
+      padding: 5px 10px;
+      border-radius: 8px;
+      backdrop-filter: blur(6px);
       pointer-events: none;
       user-select: none;
-      border: 1px solid rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .screen-view {
@@ -347,7 +346,7 @@
       background: rgba(15, 23, 42, 0.96);
       backdrop-filter: blur(16px);
       border-top: 1px solid var(--border);
-      padding: 18px 20px 24px 20px;
+      padding: 16px 20px 22px 20px;
       z-index: 1000;
       box-shadow: 0 -10px 30px rgba(0,0,0,0.6);
     }
@@ -368,7 +367,7 @@
     }
 
     .stop-title {
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       font-weight: 700;
       line-height: 1.3;
       max-width: 82%;
@@ -383,14 +382,192 @@
       color: #cbd5e1;
     }
 
+    /* PRZYCISK KONSULTANTA AI NA ŻYWO */
+    .btn-ask-ai {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      margin-top: 10px;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
+      transition: transform 0.15s ease;
+    }
+
+    .btn-ask-ai:active {
+      transform: scale(0.98);
+    }
+
+    /* OKNO CZATU Z PRZEWODNIKIEM AI */
+    .ai-modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 6, 23, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 2000;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    .ai-chat-sheet {
+      background: #1e293b;
+      border-top: 1px solid #475569;
+      border-radius: 24px 24px 0 0;
+      height: 82vh;
+      max-height: 720px;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.7);
+    }
+
+    .ai-chat-header {
+      padding: 16px 20px;
+      background: #0f172a;
+      border-bottom: 1px solid #334155;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .ai-header-info h3 {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ai-header-info p {
+      font-size: 0.78rem;
+      color: #a78bfa;
+      margin-top: 2px;
+    }
+
+    .btn-ai-close {
+      background: #334155;
+      border: none;
+      color: #cbd5e1;
+      padding: 7px 12px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .ai-messages {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .msg-bubble {
+      max-width: 86%;
+      padding: 12px 15px;
+      border-radius: 16px;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .msg-ai {
+      align-self: flex-start;
+      background: #0f172a;
+      color: #f1f5f9;
+      border: 1px solid #334155;
+      border-bottom-left-radius: 4px;
+    }
+
+    .msg-user {
+      align-self: flex-end;
+      background: #6d28d9;
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    .ai-quick-chips {
+      padding: 8px 16px;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      background: #1e293b;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .ai-chip {
+      background: #334155;
+      color: #e2e8f0;
+      border: 1px solid #475569;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .ai-input-bar {
+      padding: 12px 16px 24px 16px;
+      background: #0f172a;
+      border-top: 1px solid #334155;
+      display: flex;
+      gap: 10px;
+    }
+
+    .ai-input-bar input {
+      flex: 1;
+      background: #1e293b;
+      border: 1px solid #475569;
+      border-radius: 12px;
+      padding: 12px 14px;
+      color: white;
+      font-size: 16px;
+      outline: none;
+    }
+
+    .ai-input-bar input:focus {
+      border-color: #8b5cf6;
+    }
+
+    .btn-ai-send {
+      background: #7c3aed;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 0 18px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+    }
+
+    .btn-ai-send:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
     .next-stage-banner {
       display: none;
-      padding: 16px 20px;
+      padding: 14px 18px;
       border-radius: 14px;
       text-align: center;
       font-weight: 800;
-      font-size: 1.05rem;
-      margin-top: 12px;
+      font-size: 1rem;
+      margin-top: 10px;
       cursor: pointer;
       animation: pulse 2s infinite;
     }
@@ -456,7 +633,6 @@
 </head>
 <body>
 
-  <!-- SUBTELNY ZNACZNIK AUTORSKI W ROGU -->
   <div class="author-watermark">Made by Kriss 2026</div>
 
   <!-- EKRAN 1: Wstęp do Bolonii -->
@@ -649,9 +825,15 @@
         <div class="step-counter" id="panel-counter">1 / 10</div>
       </div>
 
-      <audio id="stop-audio" controls style="margin-bottom: 6px;">
+      <audio id="stop-audio" controls style="margin-bottom: 4px;">
         <source id="stop-audio-source" src="" type="audio/mpeg">
       </audio>
+
+      <!-- PRZYCISK KONSULTANTA AI NA ŻYWO -->
+      <button id="btn-open-ai" class="btn-ask-ai">
+        <span>✨</span>
+        <span>Dopytaj przewodnika AI o to miejsce</span>
+      </button>
 
       <!-- Przyciski etapów -->
       <div id="btn-to-milan" class="next-stage-banner milan-banner">
@@ -668,12 +850,41 @@
     </div>
   </div>
 
+  <!-- OKNO CZATU Z KONSULTANTEM AI -->
+  <div id="ai-modal" class="ai-modal-overlay">
+    <div class="ai-chat-sheet">
+      <div class="ai-chat-header">
+        <div class="ai-header-info">
+          <h3>🇮🇹 Twój Przewodnik AI</h3>
+          <p id="ai-context-label">Lokalizacja: Bolonia</p>
+        </div>
+        <button id="btn-close-ai" class="btn-ai-close">✕ Zamknij</button>
+      </div>
+
+      <div id="ai-messages" class="ai-messages"></div>
+
+      <div class="ai-quick-chips">
+        <button class="ai-chip" data-q="Opowiedz jeszcze jakąś ciekawostkę o tym miejscu, której nie było w nagraniu.">🤫 Dodatkowa ciekawostka</button>
+        <button class="ai-chip" data-q="Co dobrego warto tu zjeść albo wypić w okolicy 3 minut spacerem?">🍝 Gdzie tu na jedzenie/kawę?</button>
+        <button class="ai-chip" data-q="Na jaki detal architektoniczny tutaj warto zwrócić uwagę do zdjęcia?">📸 Co tu sfotografować?</button>
+      </div>
+
+      <div class="ai-input-bar">
+        <input type="text" id="ai-user-input" placeholder="Zapytaj o ten zabytek, jedzenie, dojazd..." autocomplete="off">
+        <button id="btn-send-ai" class="btn-ai-send">Wyślij</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
+    // TWÓJ PRYWATNY ŁĄCZNIK GOOGLE APPS SCRIPT (Z ZASZYTYM KLUCZEM API)
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxaRdA2wG3dYmddN_XMZSuchrqZzIxw0seZxT4lwQt7bS28EpdzkXRYpE0JZ-eExRgL/exec";
+
     // 1. BOLONIA (10 przystanków)
     const bolognaStops = [
-      { id: 1, title: "Wzgórze z widokiem", coords: [44.4815, 11.3413], file: "PRZYSTANEK 1 Wzgórze z widokiem.mp3" },
+      { id: 1, title: "Wzgórze z widokiem (Belvedere di San Michele in Bosco)", coords: [44.4815, 11.3413], file: "PRZYSTANEK 1 Wzgórze z widokiem.mp3" },
       { id: 2, title: "Poranek na Via Castiglione i Forno Brisa", coords: [44.4891, 11.3465], file: "PRZYSTANEK 2 Poranek na Via Castiglione i Piekarnia Forno Brisa.mp3" },
       { id: 3, title: "Palazzo dell’Archiginnasio – Śladami Polaków", coords: [44.4920, 11.3436], file: "PRZYSTANEK 3 Palazzo dell’Archiginnasio – Śladami Polaków i Teatr Ludzkiego Ciała.mp3" },
       { id: 4, title: "Piazza Maggiore i Urząd Miasta", coords: [44.4938, 11.3429], file: "PRZYSTANEK 4 Piazza Maggiore i Urząd Miasta – Polityka, Kościół i Sekrety Władzy.mp3" },
@@ -697,36 +908,11 @@
 
     // 3. BERGAMO (5 przystanków)
     const bergamoStops = [
-      { 
-        id: 1, 
-        title: "Funicolare Città Alta – Zabytkowa kolejka do chmur", 
-        coords: [45.70014, 9.66874], 
-        file: "PRZYSTANEK 1 Funicolare Città Alta – Zabytkowa kolejka do chmur.mp3" 
-      },
-      { 
-        id: 2, 
-        title: "Piazza Vecchia – Plac doskonały i 100 uderzeń dzwonu", 
-        coords: [45.7042, 9.6628], 
-        file: "PRZYSTANEK 2 Piazza Vecchia – Plac doskonały i 100 uderzeń dzwonu.mp3" 
-      },
-      { 
-        id: 3, 
-        title: "Cappella Colleoni i Bazylika Santa Maria Maggiore – Duma generała i rodowy przesąd", 
-        coords: [45.7037, 9.6624], 
-        file: "PRZYSTANEK 3 Cappella Colleoni i Bazylika Santa Maria Maggiore – Duma generała i rodowy przesąd.mp3" 
-      },
-      { 
-        id: 4, 
-        title: "Smaki Bergamo – Sekret Stracciatelli i słodkie ptaki w kukurydzy", 
-        coords: [45.7051, 9.6610], 
-        file: "PRZYSTANEK 4 Smaki Bergamo – Sekret Stracciatelli i słodkie ptaki w kukurydzy.mp3" 
-      },
-      { 
-        id: 5, 
-        title: "Porta San Giacomo i Mury Weneckie – Granica imperium i alpejski horyzont", 
-        coords: [45.7018, 9.6641], 
-        file: "PRZYSTANEK 5 Porta San Giacomo i Mury Weneckie – Granica imperium i alpejski horyzont.mp3" 
-      }
+      { id: 1, title: "Funicolare Città Alta – Zabytkowa kolejka do chmur", coords: [45.70014, 9.66874], file: "PRZYSTANEK 1 Funicolare Città Alta – Zabytkowa kolejka do chmur.mp3" },
+      { id: 2, title: "Piazza Vecchia – Plac doskonały i 100 uderzeń dzwonu", coords: [45.7042, 9.6628], file: "PRZYSTANEK 2 Piazza Vecchia – Plac doskonały i 100 uderzeń dzwonu.mp3" },
+      { id: 3, title: "Cappella Colleoni i Bazylika Santa Maria Maggiore – Duma generała i rodowy przesąd", coords: [45.7037, 9.6624], file: "PRZYSTANEK 3 Cappella Colleoni i Bazylika Santa Maria Maggiore – Duma generała i rodowy przesąd.mp3" },
+      { id: 4, title: "Smaki Bergamo – Sekret Stracciatelli i słodkie ptaki w kukurydzy", coords: [45.7051, 9.6610], file: "PRZYSTANEK 4 Smaki Bergamo – Sekret Stracciatelli i słodkie ptaki w kukurydzy.mp3" },
+      { id: 5, title: "Porta San Giacomo i Mury Weneckie – Granica imperium i alpejski horyzont", coords: [45.7018, 9.6641], file: "PRZYSTANEK 5 Porta San Giacomo i Mury Weneckie – Granica imperium i alpejski horyzont.mp3" }
     ];
 
     // ZMIENNE STANU
@@ -739,6 +925,7 @@
     let map = null;
     let routeLine = null;
     let isMasterUnlocked = false;
+    let chatHistory = [];
 
     // DOM EKRANY
     const bolognaIntroScreen = document.getElementById('bologna-intro-screen');
@@ -757,7 +944,6 @@
     const btnSkipBergamo = document.getElementById('btn-skip-bergamo');
 
     const specialAirportScreen = document.getElementById('special-airport-screen');
-    const specialIntroAudio = document.getElementById('special-intro-audio');
     const btnBackToMap = document.getElementById('btn-back-to-map');
 
     const mapScreen = document.getElementById('map-screen');
@@ -780,7 +966,136 @@
     const jumpMilan = document.getElementById('jump-milan');
     const jumpBergamo = document.getElementById('jump-bergamo');
 
-    // KOD MASTER: 1509
+    // DOM AI KONSULTANT
+    const btnOpenAi = document.getElementById('btn-open-ai');
+    const aiModal = document.getElementById('ai-modal');
+    const btnCloseAi = document.getElementById('btn-close-ai');
+    const aiContextLabel = document.getElementById('ai-context-label');
+    const aiMessages = document.getElementById('ai-messages');
+    const aiUserInput = document.getElementById('ai-user-input');
+    const btnSendAi = document.getElementById('btn-send-ai');
+
+    function getCurrentCityNamePl() {
+      if (currentCity === 'bologna') return 'Bolonia';
+      if (currentCity === 'milan') return 'Mediolan';
+      return 'Bergamo';
+    }
+
+    function getCurrentStopObject() {
+      const data = getCityData(currentCity);
+      return data.stops.find(s => s.id === currentSelectedId) || data.stops[0];
+    }
+
+    // OTWIERANIE OKNA KONSULTANTA AI
+    btnOpenAi.addEventListener('click', () => {
+      const cityName = getCurrentCityNamePl();
+      const stop = getCurrentStopObject();
+
+      aiContextLabel.innerText = `📍 ${cityName} • Punkt ${stop.id}: ${stop.title}`;
+      aiModal.style.display = 'flex';
+
+      chatHistory = [];
+      aiMessages.innerHTML = '';
+      appendMessage('ai', `Cześć! Stoimy przy punkcie **${stop.id}. ${stop.title}** (${cityName}). O co chcesz dopytać – historię, ukryte detale, jedzenie w okolicy czy dalszą drogę?`);
+    });
+
+    btnCloseAi.addEventListener('click', () => {
+      aiModal.style.display = 'none';
+    });
+
+    aiModal.addEventListener('click', (e) => {
+      if (e.target === aiModal) aiModal.style.display = 'none';
+    });
+
+    document.querySelectorAll('.ai-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        const q = chip.getAttribute('data-q');
+        sendQuestionToGemini(q);
+      });
+    });
+
+    btnSendAi.addEventListener('click', () => {
+      const text = aiUserInput.value.trim();
+      if (text) sendQuestionToGemini(text);
+    });
+
+    aiUserInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        const text = aiUserInput.value.trim();
+        if (text) sendQuestionToGemini(text);
+      }
+    });
+
+    function appendMessage(role, text) {
+      const div = document.createElement('div');
+      div.className = `msg-bubble ${role === 'user' ? 'msg-user' : 'msg-ai'}`;
+      div.innerHTML = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      aiMessages.appendChild(div);
+      aiMessages.scrollTop = aiMessages.scrollHeight;
+      return div;
+    }
+
+    async function sendQuestionToGemini(questionText) {
+      aiUserInput.value = '';
+      btnSendAi.disabled = true;
+      appendMessage('user', questionText);
+
+      const loadingBubble = appendMessage('ai', '⏳ Przewodnik sprawdza notatki...');
+
+      const cityName = getCurrentCityNamePl();
+      const stop = getCurrentStopObject();
+      const cityData = getCityData(currentCity);
+      const stopsListText = cityData.stops.map(s => `${s.id}. ${s.title}`).join('; ');
+
+      const systemPrompt = `Jesteś charyzmatycznym, pełnym pasji polskim przewodnikiem po północnych Włoszech (Bolonia, Mediolan, Bergamo), oprowadzającym parę turystów na intensywnej, 28-godzinnej wycieczce.
+AKTUALNA LOKALIZACJA UŻYTKOWNIKA:
+- Miasto: ${cityName}
+- Aktualny przystanek na trasie: Punkt ${stop.id} – "${stop.title}" (współrzędne GPS: ${stop.coords[0]}, ${stop.coords[1]})
+- Pełna lista przystanków w tym mieście: ${stopsListText}
+
+ZASADY ODPOWIEDZI:
+1. Odpowiadaj po polsku, żywym, gawędziarskim, ale konkretnym stylem – turyści stoją na ulicy z telefonem w ręku, więc nie pisz długich wypracowań (maksymalnie 3–4 krótkie akapity lub zwięzłe punkty).
+2. Odwołuj się bezpośrednio do miejsca, przy którym właśnie stoją, i tego, co widzą wokół siebie.
+3. Jeśli pytają o jedzenie, kawę lub praktyczne wskazówki (transport, bilety, toalety), podawaj autentyczne, sprawdzone lokalne rekomendacje w bezpośrednim sąsiedztwie podanych współrzędnych GPS.`;
+
+      chatHistory.push({
+        role: "user",
+        parts: [{ text: questionText }]
+      });
+
+      try {
+        const response = await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({
+            systemPrompt: systemPrompt,
+            contents: chatHistory
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+          throw new Error(data.error.message || "Błąd połączenia z serwerem Google");
+        }
+
+        const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "Przepraszam, chwilowy brak zasięgu we włoskich murach. Spróbuj zapytać jeszcze raz!";
+        loadingBubble.innerHTML = reply.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+        chatHistory.push({
+          role: "model",
+          parts: [{ text: reply }]
+        });
+      } catch (err) {
+        loadingBubble.innerHTML = `❌ Nie udało się połączyć z przewodnikiem AI: ${err.message}`;
+        chatHistory.pop();
+      } finally {
+        btnSendAi.disabled = false;
+        aiMessages.scrollTop = aiMessages.scrollHeight;
+      }
+    }
+
+    // KOD MASTER: 1509 - PEŁNE ODBLOKOWANIE WSZYSTKIEGO
     function activateMasterMode() {
       isMasterUnlocked = true;
       bolognaUnlocked = bolognaStops.length;
@@ -867,7 +1182,6 @@
       }
     }
 
-    // SPRAWDZANIE DATY
     function checkDateForJumpButtons() {
       if (isMasterUnlocked) return;
       const now = new Date();
@@ -886,7 +1200,6 @@
     }
     checkDateForJumpButtons();
 
-    // PRZYCISKI SKOKU
     jumpBologna.addEventListener('click', () => {
       bolognaIntroScreen.style.display = 'none';
       mapScreen.style.display = 'flex';
@@ -910,7 +1223,6 @@
       initMap('bergamo', 1);
     });
 
-    // BOLONIA
     bolognaIntroAudio.addEventListener('ended', () => {
       btnStartBologna.removeAttribute('disabled');
       btnStartBologna.innerHTML = "<span>Rozpocznij spacer</span> ➔";
@@ -927,7 +1239,6 @@
       initMap('bologna', 1);
     });
 
-    // MEDIOLAN
     btnToMilan.addEventListener('click', () => {
       mapScreen.style.display = 'none';
       milanTrainScreen.style.display = 'flex';
@@ -951,7 +1262,6 @@
       initMap('milan', 1);
     });
 
-    // BERGAMO
     btnToBergamo.addEventListener('click', () => {
       mapScreen.style.display = 'none';
       bergamoTrainScreen.style.display = 'flex';
@@ -975,7 +1285,6 @@
       initMap('bergamo', 1);
     });
 
-    // ODCINEK SPECJALNY LOTNISKO
     btnToAirportSpecial.addEventListener('click', () => {
       if (isMasterUnlocked) {
         mapScreen.style.display = 'none';
@@ -992,7 +1301,6 @@
       mapScreen.style.display = 'flex';
     });
 
-    // ZAKŁADKI MIAST
     tabBologna.addEventListener('click', () => { if (currentCity !== 'bologna') switchCity('bologna', isMasterUnlocked ? currentSelectedId : bolognaUnlocked); });
     tabMilan.addEventListener('click', () => { if (currentCity !== 'milan') switchCity('milan', isMasterUnlocked ? currentSelectedId : milanUnlocked); });
     tabBergamo.addEventListener('click', () => { if (currentCity !== 'bergamo') switchCity('bergamo', isMasterUnlocked ? currentSelectedId : bergamoUnlocked); });
