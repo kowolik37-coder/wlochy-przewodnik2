@@ -882,6 +882,14 @@
     // TWÓJ PRYWATNY ŁĄCZNIK GOOGLE APPS SCRIPT (Z ZASZYTYM KLUCZEM API)
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxaRdA2wG3dYmddN_XMZSuchrqZzIxw0seZxT4lwQt7bS28EpdzkXRYpE0JZ-eExRgL/exec";
 
+    // FUNKCJA ZATRZYMUJĄCA WSZYSTKIE ODTWARZACZE AUDIO NA STRONIE
+    function stopAllAudio() {
+      document.querySelectorAll('audio').forEach(audio => {
+        audio.pause();
+        audio.currentTime = 0;
+      });
+    }
+
     // 1. BOLONIA (10 przystanków)
     const bolognaStops = [
       { id: 1, title: "Wzgórze z widokiem (Belvedere di San Michele in Bosco)", coords: [44.4815, 11.3413], file: "PRZYSTANEK 1 Wzgórze z widokiem.mp3" },
@@ -1097,6 +1105,7 @@ ZASADY ODPOWIEDZI:
 
     // KOD MASTER: 1509 - PEŁNE ODBLOKOWANIE WSZYSTKIEGO
     function activateMasterMode() {
+      stopAllAudio();
       isMasterUnlocked = true;
       bolognaUnlocked = bolognaStops.length;
       milanUnlocked = milanStops.length;
@@ -1127,11 +1136,13 @@ ZASADY ODPOWIEDZI:
 
       if (cityContext === 'bologna') {
         if (pin === "1410") {
+          stopAllAudio();
           btnStartBologna.removeAttribute('disabled');
           bolognaIntroScreen.style.display = 'none';
           mapScreen.style.display = 'flex';
           initMap('bologna', 1);
         } else if (pin === "9892") {
+          stopAllAudio();
           bolognaUnlocked = bolognaStops.length;
           bolognaIntroScreen.style.display = 'none';
           mapScreen.style.display = 'flex';
@@ -1141,12 +1152,14 @@ ZASADY ODPOWIEDZI:
         }
       } else if (cityContext === 'milan') {
         if (pin === "1410") {
+          stopAllAudio();
           btnStartMilanMap.removeAttribute('disabled');
           milanTrainScreen.style.display = 'none';
           mapScreen.style.display = 'flex';
           tabMilan.style.display = 'block';
           initMap('milan', 1);
         } else if (pin === "9892") {
+          stopAllAudio();
           milanUnlocked = milanStops.length;
           milanTrainScreen.style.display = 'none';
           mapScreen.style.display = 'flex';
@@ -1157,12 +1170,14 @@ ZASADY ODPOWIEDZI:
         }
       } else if (cityContext === 'bergamo') {
         if (pin === "1410") {
+          stopAllAudio();
           btnStartBergamoMap.removeAttribute('disabled');
           bergamoTrainScreen.style.display = 'none';
           mapScreen.style.display = 'flex';
           tabBergamo.style.display = 'block';
           initMap('bergamo', 1);
         } else if (pin === "9892") {
+          stopAllAudio();
           bergamoUnlocked = bergamoStops.length;
           bergamoTrainScreen.style.display = 'none';
           mapScreen.style.display = 'flex';
@@ -1173,6 +1188,7 @@ ZASADY ODPOWIEDZI:
         }
       } else if (cityContext === 'airport') {
         if (pin === "28") {
+          stopAllAudio();
           mapScreen.style.display = 'none';
           specialAirportScreen.style.display = 'flex';
           window.scrollTo(0, 0);
@@ -1201,12 +1217,14 @@ ZASADY ODPOWIEDZI:
     checkDateForJumpButtons();
 
     jumpBologna.addEventListener('click', () => {
+      stopAllAudio();
       bolognaIntroScreen.style.display = 'none';
       mapScreen.style.display = 'flex';
       initMap('bologna', 1);
     });
 
     jumpMilan.addEventListener('click', () => {
+      stopAllAudio();
       bolognaIntroScreen.style.display = 'none';
       mapScreen.style.display = 'flex';
       tabMilan.style.display = 'block';
@@ -1215,6 +1233,7 @@ ZASADY ODPOWIEDZI:
     });
 
     jumpBergamo.addEventListener('click', () => {
+      stopAllAudio();
       bolognaIntroScreen.style.display = 'none';
       mapScreen.style.display = 'flex';
       tabMilan.style.display = 'block';
@@ -1234,12 +1253,14 @@ ZASADY ODPOWIEDZI:
     });
 
     btnStartBologna.addEventListener('click', () => {
+      stopAllAudio();
       bolognaIntroScreen.style.display = 'none';
       mapScreen.style.display = 'flex';
       initMap('bologna', 1);
     });
 
     btnToMilan.addEventListener('click', () => {
+      stopAllAudio();
       mapScreen.style.display = 'none';
       milanTrainScreen.style.display = 'flex';
       window.scrollTo(0, 0);
@@ -1256,6 +1277,7 @@ ZASADY ODPOWIEDZI:
     });
 
     btnStartMilanMap.addEventListener('click', () => {
+      stopAllAudio();
       milanTrainScreen.style.display = 'none';
       mapScreen.style.display = 'flex';
       tabMilan.style.display = 'block';
@@ -1263,6 +1285,7 @@ ZASADY ODPOWIEDZI:
     });
 
     btnToBergamo.addEventListener('click', () => {
+      stopAllAudio();
       mapScreen.style.display = 'none';
       bergamoTrainScreen.style.display = 'flex';
       window.scrollTo(0, 0);
@@ -1279,6 +1302,7 @@ ZASADY ODPOWIEDZI:
     });
 
     btnStartBergamoMap.addEventListener('click', () => {
+      stopAllAudio();
       bergamoTrainScreen.style.display = 'none';
       mapScreen.style.display = 'flex';
       tabBergamo.style.display = 'block';
@@ -1287,6 +1311,7 @@ ZASADY ODPOWIEDZI:
 
     btnToAirportSpecial.addEventListener('click', () => {
       if (isMasterUnlocked) {
+        stopAllAudio();
         mapScreen.style.display = 'none';
         specialAirportScreen.style.display = 'flex';
         window.scrollTo(0, 0);
@@ -1297,6 +1322,7 @@ ZASADY ODPOWIEDZI:
     });
 
     btnBackToMap.addEventListener('click', () => {
+      stopAllAudio();
       specialAirportScreen.style.display = 'none';
       mapScreen.style.display = 'flex';
     });
@@ -1306,6 +1332,7 @@ ZASADY ODPOWIEDZI:
     tabBergamo.addEventListener('click', () => { if (currentCity !== 'bergamo') switchCity('bergamo', isMasterUnlocked ? currentSelectedId : bergamoUnlocked); });
 
     function switchCity(city, targetStopId) {
+      stopAllAudio();
       currentCity = city;
       [tabBologna, tabMilan, tabBergamo].forEach(tab => tab.classList.remove('active'));
       if (city === 'bologna') tabBologna.classList.add('active');
@@ -1378,6 +1405,7 @@ ZASADY ODPOWIEDZI:
     }
 
     function selectStop(id) {
+      stopAllAudio();
       currentSelectedId = id;
       const data = getCityData(currentCity);
       const stop = data.stops.find(s => s.id === id) || data.stops[0];
