@@ -1,0 +1,9 @@
+{
+  "name": "Przewodnik Audio: Bolonia • Mediolan • Bergamo",
+  "short_name": "Włochy Audio",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "lang": "pl"
+}
