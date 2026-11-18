@@ -424,8 +424,9 @@
       text-decoration: underline;
     }
 
+    /* KAFELKI SZYBKIEGO SKOKU DO MIAST - ZAWSZE WIDOCZNE W GŁÓWNYM MENU */
     .time-jump-container {
-      display: none;
+      display: block;
       width: 100%;
       max-width: 440px;
       margin-top: 20px;
@@ -450,22 +451,27 @@
 
     .time-jump-btn {
       flex: 1;
-      padding: 12px 6px;
-      border: 1px solid rgba(255,255,255,0.1);
+      padding: 13px 6px;
+      border: 1px solid rgba(255,255,255,0.14);
       border-radius: 12px;
       color: white;
       font-weight: 700;
-      font-size: 0.9rem;
+      font-size: 0.92rem;
       cursor: pointer;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 4px;
+      transition: transform 0.12s ease;
     }
 
-    .time-jump-bologna { background: rgba(194, 65, 12, 0.35); border-color: rgba(194, 65, 12, 0.6); }
-    .time-jump-milan { background: rgba(185, 28, 28, 0.35); border-color: rgba(185, 28, 28, 0.6); }
-    .time-jump-bergamo { background: rgba(2, 132, 199, 0.35); border-color: rgba(2, 132, 199, 0.6); }
+    .time-jump-btn:active {
+      transform: scale(0.96);
+    }
+
+    .time-jump-bologna { background: rgba(194, 65, 12, 0.4); border-color: rgba(194, 65, 12, 0.7); }
+    .time-jump-milan { background: rgba(185, 28, 28, 0.4); border-color: rgba(185, 28, 28, 0.7); }
+    .time-jump-bergamo { background: rgba(2, 132, 199, 0.4); border-color: rgba(2, 132, 199, 0.7); }
 
     /* WIDOK MAPY */
     #map-screen {
@@ -488,12 +494,28 @@
       left: 14px;
       z-index: 1000;
       display: flex;
-      gap: 6px;
-      background: rgba(15, 23, 42, 0.9);
+      align-items: center;
+      gap: 5px;
+      background: rgba(15, 23, 42, 0.92);
       backdrop-filter: blur(12px);
       padding: 6px;
       border-radius: 12px;
       border: 1px solid var(--border);
+    }
+
+    .btn-home-nav {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid #475569;
+      color: #f8fafc;
+      font-weight: 700;
+      font-size: 0.82rem;
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .btn-home-nav:active {
+      background: #334155;
     }
 
     .btn-city {
@@ -501,8 +523,8 @@
       border: none;
       color: var(--text-muted);
       font-weight: 700;
-      font-size: 0.85rem;
-      padding: 8px 12px;
+      font-size: 0.84rem;
+      padding: 8px 10px;
       border-radius: 8px;
       cursor: pointer;
     }
@@ -891,7 +913,7 @@
       </button>
       <button id="btn-skip-bologna" class="btn-skip">Pomiń wstęp (wymagany kod PIN)</button>
 
-      <!-- KAFELKI SZYBKIEGO SKOKU -->
+      <!-- KAFELKI SZYBKIEGO SKOKU (ZAWSZE WIDOCZNE) -->
       <div id="time-jump-container" class="time-jump-container">
         <div class="time-jump-label">⚡ Szybki skok do miasta:</div>
         <div class="time-jump-grid">
@@ -899,11 +921,11 @@
             <span>🏛️</span>
             <span>Bolonia</span>
           </button>
-          <button id="jump-milan" class="time-jump-btn time-jump-milan" style="display: none;">
+          <button id="jump-milan" class="time-jump-btn time-jump-milan">
             <span>👑</span>
             <span>Mediolan</span>
           </button>
-          <button id="jump-bergamo" class="time-jump-btn time-jump-bergamo" style="display: none;">
+          <button id="jump-bergamo" class="time-jump-btn time-jump-bergamo">
             <span>🏰</span>
             <span>Bergamo</span>
           </button>
@@ -1078,6 +1100,7 @@
   <!-- WIDOK MAPY -->
   <div id="map-screen">
     <div class="city-switch-bar">
+      <button id="btn-map-to-home" class="btn-home-nav" title="Powrót na stronę główną">🏠 Start</button>
       <button id="tab-bologna" class="btn-city active">Bolonia</button>
       <button id="tab-milan" class="btn-city milan-tab" style="display: none;">Mediolan</button>
       <button id="tab-bergamo" class="btn-city bergamo-tab" style="display: none;">Bergamo</button>
@@ -1170,7 +1193,7 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxaRdA2wG3dYmddN_XMZSuchrqZzIxw0seZxT4lwQt7bS28EpdzkXRYpE0JZ-eExRgL/exec";
-    const STORAGE_KEY = "wlochy_przewodnik_state_v2";
+    const STORAGE_KEY = "wlochy_przewodnik_state_v3";
     const OFFLINE_CACHE_NAME = "wlochy-przewodnik-offline-v1";
 
     // 1. BOLONIA (10 przystanków)
@@ -1220,12 +1243,17 @@
       ...bergamoStops.map(s => s.file)
     ];
 
-    // ZMIENNE STANU
+    // ZMIENNE STANU (Z OSOBNĄ PAMIĘCIĄ OSTATNIEGO PUNKTU DLA KAŻDEGO MIASTA)
     let activeScreen = 'bologna-intro';
     let currentCity = 'bologna';
     let bolognaUnlocked = 1;
     let milanUnlocked = 1;
     let bergamoUnlocked = 1;
+    let lastSelectedByCity = {
+      bologna: 1,
+      milan: 1,
+      bergamo: 1
+    };
     let milanTabVisible = false;
     let bergamoTabVisible = false;
     let currentSelectedId = 1;
@@ -1259,6 +1287,7 @@
     const btnBackToMap = document.getElementById('btn-back-to-map');
 
     const mapScreen = document.getElementById('map-screen');
+    const btnMapToHome = document.getElementById('btn-map-to-home');
     const tabBologna = document.getElementById('tab-bologna');
     const tabMilan = document.getElementById('tab-milan');
     const tabBergamo = document.getElementById('tab-bergamo');
@@ -1275,7 +1304,6 @@
     const btnToBergamo = document.getElementById('btn-to-bergamo');
     const btnToAirportSpecial = document.getElementById('btn-to-airport-special');
 
-    const timeJumpContainer = document.getElementById('time-jump-container');
     const jumpBologna = document.getElementById('jump-bologna');
     const jumpMilan = document.getElementById('jump-milan');
     const jumpBergamo = document.getElementById('jump-bergamo');
@@ -1409,6 +1437,7 @@
         bolognaUnlocked,
         milanUnlocked,
         bergamoUnlocked,
+        lastSelectedByCity,
         milanTabVisible,
         bergamoTabVisible,
         currentSelectedId,
@@ -1432,9 +1461,16 @@
         bolognaUnlocked = s.bolognaUnlocked || 1;
         milanUnlocked = s.milanUnlocked || 1;
         bergamoUnlocked = s.bergamoUnlocked || 1;
+        if (s.lastSelectedByCity) {
+          lastSelectedByCity = {
+            bologna: s.lastSelectedByCity.bologna || 1,
+            milan: s.lastSelectedByCity.milan || 1,
+            bergamo: s.lastSelectedByCity.bergamo || 1
+          };
+        }
         milanTabVisible = !!s.milanTabVisible;
         bergamoTabVisible = !!s.bergamoTabVisible;
-        currentSelectedId = s.currentSelectedId || 1;
+        currentSelectedId = s.currentSelectedId || lastSelectedByCity[currentCity] || 1;
         isMasterUnlocked = !!s.isMasterUnlocked;
         savedAudioTime = s.stopAudioTime || 0;
 
@@ -1445,9 +1481,6 @@
           btnStartMilanMap.innerHTML = "<span>Rozpocznij Mediolan</span> ➔";
           btnStartBergamoMap.removeAttribute('disabled');
           btnStartBergamoMap.innerHTML = "<span>Rozpocznij Bergamo</span> ➔";
-          timeJumpContainer.style.display = 'block';
-          jumpMilan.style.display = 'flex';
-          jumpBergamo.style.display = 'flex';
         }
 
         if (milanTabVisible || isMasterUnlocked) tabMilan.style.display = 'block';
@@ -1477,6 +1510,21 @@
       } catch (e) {}
       return false;
     }
+
+    // POWRÓT Z MAPY NA EKRAN GŁÓWNY
+    function goToHomeScreen() {
+      stopAllAudio();
+      mapScreen.style.display = 'none';
+      milanTrainScreen.style.display = 'none';
+      bergamoTrainScreen.style.display = 'none';
+      specialAirportScreen.style.display = 'none';
+      bolognaIntroScreen.style.display = 'flex';
+      activeScreen = 'bologna-intro';
+      saveProgress(true);
+      window.scrollTo(0, 0);
+    }
+
+    btnMapToHome.addEventListener('click', goToHomeScreen);
 
     // SERVICE WORKER + POBIERANIE CAŁOŚCI OFFLINE
     const btnDownloadOffline = document.getElementById('btn-download-offline');
@@ -1679,9 +1727,6 @@ ZASADY ODPOWIEDZI:
 
       tabMilan.style.display = 'block';
       tabBergamo.style.display = 'block';
-      timeJumpContainer.style.display = 'block';
-      jumpMilan.style.display = 'flex';
-      jumpBergamo.style.display = 'flex';
 
       bolognaIntroScreen.style.display = 'none';
       milanTrainScreen.style.display = 'none';
@@ -1690,9 +1735,9 @@ ZASADY ODPOWIEDZI:
       mapScreen.style.display = 'flex';
       activeScreen = 'map';
 
-      initMap(currentCity, 1);
+      initMap(currentCity, lastSelectedByCity[currentCity] || 1);
       saveProgress(true);
-      alert("🔓 TRYB MASTER AKTYWNY (1509)!\nWszystkie miasta, pociągi, punkty audio, kafelki skoku i odcinek lotniskowy zostały odblokowane.");
+      alert("🔓 TRYB MASTER AKTYWNY (1509)!\nWszystkie miasta, pociągi, punkty audio i odcinek lotniskowy zostały odblokowane.");
     }
 
     // SPRAWDZANIE KODÓW PIN
@@ -1709,7 +1754,7 @@ ZASADY ODPOWIEDZI:
           bolognaIntroScreen.style.display = 'none';
           mapScreen.style.display = 'flex';
           activeScreen = 'map';
-          initMap('bologna', 1);
+          initMap('bologna', lastSelectedByCity.bologna);
         } else if (pin === "9892") {
           stopAllAudio();
           bolognaUnlocked = bolognaStops.length;
@@ -1729,7 +1774,7 @@ ZASADY ODPOWIEDZI:
           tabMilan.style.display = 'block';
           milanTabVisible = true;
           activeScreen = 'map';
-          initMap('milan', 1);
+          initMap('milan', lastSelectedByCity.milan);
         } else if (pin === "9892") {
           stopAllAudio();
           milanUnlocked = milanStops.length;
@@ -1751,7 +1796,7 @@ ZASADY ODPOWIEDZI:
           tabBergamo.style.display = 'block';
           bergamoTabVisible = true;
           activeScreen = 'map';
-          initMap('bergamo', 1);
+          initMap('bergamo', lastSelectedByCity.bergamo);
         } else if (pin === "9892") {
           stopAllAudio();
           bergamoUnlocked = bergamoStops.length;
@@ -1778,29 +1823,13 @@ ZASADY ODPOWIEDZI:
       }
     }
 
-    function checkDateForJumpButtons() {
-      if (isMasterUnlocked) return;
-      const now = new Date();
-      const milanDate = new Date('2026-11-15T13:00:00');
-      const bergamoDate = new Date('2026-11-16T00:00:00');
-
-      if (now >= milanDate) {
-        timeJumpContainer.style.display = 'block';
-        jumpMilan.style.display = 'flex';
-      }
-      if (now >= bergamoDate) {
-        timeJumpContainer.style.display = 'block';
-        jumpMilan.style.display = 'flex';
-        jumpBergamo.style.display = 'flex';
-      }
-    }
-
+    // KAFELKI SZYBKIEGO SKOKU W MENU GŁÓWNYM (PRZYWRACAJĄ OSTATNI PUNKT W DANYM MIEŚCIE)
     jumpBologna.addEventListener('click', () => {
       stopAllAudio();
       bolognaIntroScreen.style.display = 'none';
       mapScreen.style.display = 'flex';
       activeScreen = 'map';
-      initMap('bologna', 1);
+      initMap('bologna', lastSelectedByCity.bologna);
     });
 
     jumpMilan.addEventListener('click', () => {
@@ -1811,7 +1840,7 @@ ZASADY ODPOWIEDZI:
       milanTabVisible = true;
       milanUnlocked = milanStops.length;
       activeScreen = 'map';
-      initMap('milan', 1);
+      initMap('milan', lastSelectedByCity.milan);
     });
 
     jumpBergamo.addEventListener('click', () => {
@@ -1824,7 +1853,7 @@ ZASADY ODPOWIEDZI:
       bergamoTabVisible = true;
       bergamoUnlocked = bergamoStops.length;
       activeScreen = 'map';
-      initMap('bergamo', 1);
+      initMap('bergamo', lastSelectedByCity.bergamo);
     });
 
     bolognaIntroAudio.addEventListener('ended', () => {
@@ -1842,7 +1871,7 @@ ZASADY ODPOWIEDZI:
       bolognaIntroScreen.style.display = 'none';
       mapScreen.style.display = 'flex';
       activeScreen = 'map';
-      initMap('bologna', 1);
+      initMap('bologna', lastSelectedByCity.bologna);
     });
 
     btnToMilan.addEventListener('click', () => {
@@ -1871,7 +1900,7 @@ ZASADY ODPOWIEDZI:
       tabMilan.style.display = 'block';
       milanTabVisible = true;
       activeScreen = 'map';
-      initMap('milan', 1);
+      initMap('milan', lastSelectedByCity.milan);
     });
 
     btnMilanBackToMap.addEventListener('click', () => {
@@ -1908,7 +1937,7 @@ ZASADY ODPOWIEDZI:
       tabBergamo.style.display = 'block';
       bergamoTabVisible = true;
       activeScreen = 'map';
-      initMap('bergamo', 1);
+      initMap('bergamo', lastSelectedByCity.bergamo);
     });
 
     btnBergamoBackToMap.addEventListener('click', () => {
@@ -1941,9 +1970,16 @@ ZASADY ODPOWIEDZI:
       saveProgress(true);
     });
 
-    tabBologna.addEventListener('click', () => { if (currentCity !== 'bologna') switchCity('bologna', isMasterUnlocked ? 1 : bolognaUnlocked); });
-    tabMilan.addEventListener('click', () => { if (currentCity !== 'milan') switchCity('milan', isMasterUnlocked ? 1 : milanUnlocked); });
-    tabBergamo.addEventListener('click', () => { if (currentCity !== 'bergamo') switchCity('bergamo', isMasterUnlocked ? 1 : bergamoUnlocked); });
+    // PRZEŁĄCZANIE ZAKŁADEK MIAST NA MAPIE (ZAPAMIĘTUJE OSTATNI PUNKT W KAŻDYM MIEŚCIE)
+    tabBologna.addEventListener('click', () => {
+      if (currentCity !== 'bologna') switchCity('bologna', lastSelectedByCity.bologna);
+    });
+    tabMilan.addEventListener('click', () => {
+      if (currentCity !== 'milan') switchCity('milan', lastSelectedByCity.milan);
+    });
+    tabBergamo.addEventListener('click', () => {
+      if (currentCity !== 'bergamo') switchCity('bergamo', lastSelectedByCity.bergamo);
+    });
 
     function switchCity(city, targetStopId, keepSavedTime = false) {
       stopAllAudio();
@@ -2015,7 +2051,7 @@ ZASADY ODPOWIEDZI:
       });
 
       map.fitBounds(routeLine.getBounds(), { padding: [40, 40] });
-      const validTarget = targetStopId > data.stops.length ? 1 : targetStopId;
+      const validTarget = (targetStopId >= 1 && targetStopId <= data.stops.length) ? targetStopId : 1;
       selectStop(validTarget, keepSavedTime);
     }
 
@@ -2023,6 +2059,8 @@ ZASADY ODPOWIEDZI:
       if (!keepSavedTime) savedAudioTime = 0;
       stopAllAudio();
       currentSelectedId = id;
+      lastSelectedByCity[currentCity] = id;
+
       const data = getCityData(currentCity);
       const stop = data.stops.find(s => s.id === id) || data.stops[0];
 
@@ -2140,7 +2178,6 @@ ZASADY ODPOWIEDZI:
 
     // START APLIKACJI
     initBigPlayers();
-    checkDateForJumpButtons();
     checkOfflineStatus();
     restoreProgress();
   </script>
