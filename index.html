@@ -3,11 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Włochy Audio">
+  <meta name="theme-color" content="#0f172a">
   <title>Przewodnik Audio + AI: Bolonia • Mediolan • Bergamo</title>
-  
+  <link rel="manifest" href="manifest.json">
+
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-  
+
   <style>
     :root {
       --primary: #c2410c;
@@ -27,6 +32,7 @@
       margin: 0;
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
@@ -41,8 +47,8 @@
 
     .author-watermark {
       position: fixed;
-      top: 16px;
-      right: 16px;
+      top: 14px;
+      right: 14px;
       z-index: 1000;
       font-size: 0.72rem;
       font-weight: 600;
@@ -63,7 +69,7 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 24px;
+      padding: 24px 18px;
       text-align: center;
       min-height: 100vh;
       position: relative;
@@ -119,7 +125,7 @@
       font-weight: 600;
       letter-spacing: 0.05em;
       text-transform: uppercase;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       border: 1px solid rgba(234, 88, 12, 0.3);
     }
 
@@ -142,61 +148,215 @@
     }
 
     h1 {
-      font-size: 2.2rem;
+      font-size: 2.1rem;
       line-height: 1.2;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       font-weight: 800;
       letter-spacing: -0.02em;
     }
 
     .subtitle {
       color: var(--text-muted);
-      font-size: 0.95rem;
+      font-size: 0.92rem;
       max-width: 480px;
-      line-height: 1.6;
-      margin-bottom: 24px;
+      line-height: 1.5;
+      margin-bottom: 18px;
+    }
+
+    /* PASEK POBIERANIA OFFLINE */
+    .offline-bar {
+      width: 100%;
+      max-width: 440px;
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid #334155;
+      border-radius: 14px;
+      padding: 10px 14px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .offline-status {
+      text-align: left;
+      font-size: 0.8rem;
+      color: #cbd5e1;
+      line-height: 1.3;
+    }
+
+    .offline-status strong {
+      display: block;
+      color: #38bdf8;
+      font-size: 0.84rem;
+    }
+
+    .btn-offline {
+      background: #0284c7;
+      color: white;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .btn-offline.ready {
+      background: #16a34a;
+    }
+
+    .btn-offline:disabled {
+      opacity: 0.7;
+      cursor: wait;
     }
 
     .train-hero {
       width: 100%;
-      max-width: 420px;
+      max-width: 440px;
       background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.9) 100%);
       border: 1px solid var(--border);
       border-radius: 20px;
-      padding: 20px;
-      margin-bottom: 20px;
+      padding: 18px;
+      margin-bottom: 16px;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
     }
 
     .player-card {
       width: 100%;
-      max-width: 420px;
-      background: rgba(30, 41, 59, 0.78);
+      max-width: 440px;
+      background: rgba(30, 41, 59, 0.82);
       backdrop-filter: blur(12px);
-      padding: 22px;
+      padding: 18px;
       border-radius: 20px;
       border: 1px solid var(--border);
       box-shadow: 0 10px 25px -5px rgba(0,0,0,0.4);
-      margin-bottom: 20px;
+      margin-bottom: 18px;
     }
 
     .player-title {
-      font-size: 1.1rem;
-      font-weight: 600;
+      font-size: 1.08rem;
+      font-weight: 700;
       margin-bottom: 4px;
     }
 
     .player-desc {
-      font-size: 0.85rem;
+      font-size: 0.84rem;
       color: var(--text-muted);
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
-    audio {
+    /* DUŻY, WYGODNY ODTWARZACZ DOTYKOWY */
+    .big-player {
+      background: #0f172a;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      text-align: left;
+    }
+
+    .big-player-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-big-play {
+      width: 58px;
+      height: 58px;
+      border-radius: 16px;
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      font-size: 1.45rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(194, 65, 12, 0.45);
+      transition: transform 0.1s ease, background 0.2s;
+    }
+
+    .btn-big-play:active {
+      transform: scale(0.94);
+    }
+
+    .btn-seek {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      border: 1px solid #475569;
+      background: #1e293b;
+      color: #e2e8f0;
+      font-size: 0.78rem;
+      font-weight: 800;
+      cursor: pointer;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-seek:active {
+      background: #334155;
+      transform: scale(0.95);
+    }
+
+    .slider-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .big-range {
+      -webkit-appearance: none;
+      appearance: none;
       width: 100%;
-      height: 40px;
-      border-radius: 8px;
+      height: 14px;
+      border-radius: 999px;
+      background: #334155;
       outline: none;
+      cursor: pointer;
+    }
+
+    .big-range::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--gold);
+      border: 3px solid #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+      cursor: pointer;
+    }
+
+    .big-range::-moz-range-thumb {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--gold);
+      border: 3px solid #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+      cursor: pointer;
+    }
+
+    .big-time-row {
+      display: flex;
+      justify-content: space-between;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #cbd5e1;
     }
 
     .btn-action {
@@ -205,7 +365,7 @@
       justify-content: center;
       gap: 10px;
       width: 100%;
-      max-width: 420px;
+      max-width: 440px;
       padding: 16px 24px;
       background: var(--primary);
       color: white;
@@ -234,9 +394,9 @@
       justify-content: center;
       gap: 8px;
       width: 100%;
-      max-width: 420px;
+      max-width: 440px;
       margin-top: 12px;
-      padding: 13px 20px;
+      padding: 14px 20px;
       background: #334155;
       color: #e2e8f0;
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -244,11 +404,6 @@
       font-size: 0.95rem;
       font-weight: 700;
       cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .btn-back-secondary:hover {
-      background: #475569;
     }
 
     .btn-action:disabled {
@@ -272,9 +427,9 @@
     .time-jump-container {
       display: none;
       width: 100%;
-      max-width: 420px;
-      margin-top: 24px;
-      padding-top: 16px;
+      max-width: 440px;
+      margin-top: 20px;
+      padding-top: 14px;
       border-top: 1px dashed var(--border);
     }
 
@@ -302,7 +457,6 @@
       font-weight: 700;
       font-size: 0.9rem;
       cursor: pointer;
-      transition: all 0.2s;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -318,6 +472,7 @@
       display: none;
       flex-direction: column;
       height: 100vh;
+      height: 100dvh;
       position: relative;
     }
 
@@ -329,12 +484,12 @@
 
     .city-switch-bar {
       position: absolute;
-      top: 16px;
-      left: 16px;
+      top: 14px;
+      left: 14px;
       z-index: 1000;
       display: flex;
       gap: 6px;
-      background: rgba(15, 23, 42, 0.88);
+      background: rgba(15, 23, 42, 0.9);
       backdrop-filter: blur(12px);
       padding: 6px;
       border-radius: 12px;
@@ -346,18 +501,13 @@
       border: none;
       color: var(--text-muted);
       font-weight: 700;
-      font-size: 0.8rem;
-      padding: 6px 12px;
+      font-size: 0.85rem;
+      padding: 8px 12px;
       border-radius: 8px;
       cursor: pointer;
-      transition: 0.2s;
     }
 
-    .btn-city.active {
-      background: var(--primary);
-      color: white;
-    }
-
+    .btn-city.active { background: var(--primary); color: white; }
     .btn-city.milan-tab.active { background: var(--milan); }
     .btn-city.bergamo-tab.active { background: var(--bergamo); }
 
@@ -366,12 +516,12 @@
       bottom: 0;
       left: 0;
       right: 0;
-      background: rgba(15, 23, 42, 0.96);
+      background: rgba(15, 23, 42, 0.97);
       backdrop-filter: blur(16px);
       border-top: 1px solid var(--border);
-      padding: 16px 20px 22px 20px;
+      padding: 14px 16px calc(18px + env(safe-area-inset-bottom)) 16px;
       z-index: 1000;
-      box-shadow: 0 -10px 30px rgba(0,0,0,0.6);
+      box-shadow: 0 -10px 30px rgba(0,0,0,0.65);
     }
 
     .stop-header {
@@ -379,10 +529,11 @@
       justify-content: space-between;
       align-items: flex-start;
       margin-bottom: 10px;
+      gap: 8px;
     }
 
     .stop-badge {
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       font-weight: 700;
       color: #ea580c;
       text-transform: uppercase;
@@ -390,19 +541,43 @@
     }
 
     .stop-title {
-      font-size: 1.05rem;
+      font-size: 1.02rem;
       font-weight: 700;
       line-height: 1.3;
-      max-width: 82%;
     }
 
     .step-counter {
       background: #334155;
-      padding: 4px 10px;
+      padding: 5px 10px;
       border-radius: 999px;
       font-size: 0.8rem;
-      font-weight: 600;
+      font-weight: 700;
       color: #cbd5e1;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* PRZYCISK RĘCZNEGO PRZEJŚCIA DO NASTĘPNEGO PRZYSTANKU */
+    .btn-next-stop {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      margin-top: 10px;
+      padding: 14px 16px;
+      background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(22, 163, 74, 0.4);
+    }
+
+    .btn-next-stop:active {
+      transform: scale(0.98);
     }
 
     /* PRZYCISK KONSULTANTA AI NA ŻYWO */
@@ -413,16 +588,15 @@
       gap: 8px;
       width: 100%;
       margin-top: 10px;
-      padding: 12px 16px;
+      padding: 13px 16px;
       background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
       color: white;
       border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 12px;
-      font-size: 0.92rem;
+      font-size: 0.94rem;
       font-weight: 700;
       cursor: pointer;
       box-shadow: 0 4px 14px rgba(124, 58, 237, 0.35);
-      transition: transform 0.15s ease;
     }
 
     .btn-ask-ai:active {
@@ -484,9 +658,9 @@
       background: #334155;
       border: none;
       color: #cbd5e1;
-      padding: 7px 12px;
+      padding: 8px 14px;
       border-radius: 10px;
-      font-size: 0.82rem;
+      font-size: 0.84rem;
       font-weight: 700;
       cursor: pointer;
     }
@@ -537,15 +711,15 @@
       background: #334155;
       color: #e2e8f0;
       border: 1px solid #475569;
-      padding: 6px 12px;
+      padding: 8px 12px;
       border-radius: 999px;
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       white-space: nowrap;
       cursor: pointer;
     }
 
     .ai-input-bar {
-      padding: 12px 16px 24px 16px;
+      padding: 12px 16px calc(20px + env(safe-area-inset-bottom)) 16px;
       background: #0f172a;
       border-top: 1px solid #334155;
       display: flex;
@@ -585,7 +759,7 @@
 
     .next-stage-banner {
       display: none;
-      padding: 14px 18px;
+      padding: 15px 18px;
       border-radius: 14px;
       text-align: center;
       font-weight: 800;
@@ -624,7 +798,8 @@
       justify-content: center;
       border-radius: 50%;
       color: white;
-      font-weight: 700;
+      font-weight: 800;
+      font-size: 0.9rem;
       box-shadow: 0 4px 10px rgba(0,0,0,0.5);
       border: 2px solid white;
       transition: all 0.3s;
@@ -636,7 +811,7 @@
     }
 
     .marker-active {
-      transform: scale(1.15);
+      transform: scale(1.18);
       animation: bounce 1s infinite alternate;
     }
 
@@ -649,8 +824,8 @@
     }
 
     @keyframes bounce {
-      from { transform: translateY(0) scale(1.15); }
-      to { transform: translateY(-4px) scale(1.15); }
+      from { transform: translateY(0) scale(1.18); }
+      to { transform: translateY(-4px) scale(1.18); }
     }
   </style>
 </head>
@@ -679,13 +854,35 @@
       <h1>Bolonia</h1>
       <p class="subtitle">Wprowadzenie do miasta czerwonych portyków, smaku i najstarszego uniwersytetu.</p>
 
+      <!-- PASEK POBIERANIA OFFLINE -->
+      <div class="offline-bar">
+        <div class="offline-status">
+          <strong id="offline-title">Tryb offline (bez roamingu)</strong>
+          <span id="offline-desc">Zapisz 25 nagrań MP3 i mapy w pamięci telefonu (~79 MB)</span>
+        </div>
+        <button id="btn-download-offline" class="btn-offline">📥 Pobierz offline</button>
+      </div>
+
       <div class="player-card">
         <div class="player-title">Wstęp do Bolonii</div>
         <div class="player-desc">Odsłuchaj nagranie wprowadzające, aby odblokować mapę spaceru</div>
-        <audio id="bologna-intro-audio" controls>
+        <audio id="bologna-intro-audio" preload="metadata">
           <source src="Bolonia wstep.mp3" type="audio/mpeg">
-          Twoja przeglądarka nie obsługuje dźwięku.
         </audio>
+        <div class="big-player" data-audio="bologna-intro-audio">
+          <div class="big-player-controls">
+            <button type="button" class="btn-big-play" aria-label="Odtwórz lub wstrzymaj">▶</button>
+            <button type="button" class="btn-seek" data-offset="-15">-15s</button>
+            <div class="slider-area">
+              <input type="range" class="big-range" min="0" max="100" step="0.1" value="0">
+              <div class="big-time-row">
+                <span class="time-cur">0:00</span>
+                <span class="time-dur">0:00</span>
+              </div>
+            </div>
+            <button type="button" class="btn-seek" data-offset="15">+15s</button>
+          </div>
+        </div>
       </div>
 
       <button id="btn-start-bologna" class="btn-action" disabled>
@@ -737,7 +934,7 @@
 
     <div class="screen-content">
       <div class="badge badge-milan">Frecciarossa & Italo • 300 km/h</div>
-      
+
       <div class="train-hero">
         <div style="font-size:0.8rem; font-weight:800; color:#fca5a5; text-transform:uppercase; margin-bottom:4px;">
           🚄 Trasa Bolonia ➔ Mediolan
@@ -749,10 +946,23 @@
       <div class="player-card">
         <div class="player-title">Wrota Lombardii: Mediolan</div>
         <div class="player-desc">Odsłuchaj wstęp, by odblokować mapę Mediolanu</div>
-        <audio id="milan-intro-audio" controls>
+        <audio id="milan-intro-audio" preload="metadata">
           <source src="MEDIOLAN WSTĘP.mp3" type="audio/mpeg">
-          Twoja przeglądarka nie obsługuje dźwięku.
         </audio>
+        <div class="big-player" data-audio="milan-intro-audio">
+          <div class="big-player-controls">
+            <button type="button" class="btn-big-play" aria-label="Odtwórz lub wstrzymaj">▶</button>
+            <button type="button" class="btn-seek" data-offset="-15">-15s</button>
+            <div class="slider-area">
+              <input type="range" class="big-range" min="0" max="100" step="0.1" value="0">
+              <div class="big-time-row">
+                <span class="time-cur">0:00</span>
+                <span class="time-dur">0:00</span>
+              </div>
+            </div>
+            <button type="button" class="btn-seek" data-offset="15">+15s</button>
+          </div>
+        </div>
       </div>
 
       <button id="btn-start-milan-map" class="btn-action btn-action-milan" disabled>
@@ -786,7 +996,7 @@
 
     <div class="screen-content">
       <div class="badge badge-bergamo">Trenord • Kierunek: Twierdza Città Alta</div>
-      
+
       <div class="train-hero">
         <div style="font-size:0.8rem; font-weight:800; color:#7dd3fc; text-transform:uppercase; margin-bottom:4px;">
           🚆 Trasa Mediolan ➔ Bergamo
@@ -798,10 +1008,23 @@
       <div class="player-card">
         <div class="player-title">W stronę Bergamo</div>
         <div class="player-desc">Odsłuchaj nagranie w pociągu, aby odblokować poranną trasę Bergamo</div>
-        <audio id="bergamo-intro-audio" controls>
+        <audio id="bergamo-intro-audio" preload="metadata">
           <source src="OPOWIEŚĆ DO POCIĄGU Nocna droga ku weneckiej twierdzy.mp3" type="audio/mpeg">
-          Twoja przeglądarka nie obsługuje dźwięku.
         </audio>
+        <div class="big-player" data-audio="bergamo-intro-audio">
+          <div class="big-player-controls">
+            <button type="button" class="btn-big-play" aria-label="Odtwórz lub wstrzymaj">▶</button>
+            <button type="button" class="btn-seek" data-offset="-15">-15s</button>
+            <div class="slider-area">
+              <input type="range" class="big-range" min="0" max="100" step="0.1" value="0">
+              <div class="big-time-row">
+                <span class="time-cur">0:00</span>
+                <span class="time-dur">0:00</span>
+              </div>
+            </div>
+            <button type="button" class="btn-seek" data-offset="15">+15s</button>
+          </div>
+        </div>
       </div>
 
       <button id="btn-start-bergamo-map" class="btn-action btn-action-bergamo" disabled>
@@ -827,10 +1050,23 @@
       <div class="player-card" style="border-color: rgba(245, 158, 11, 0.4);">
         <div class="player-title" style="color: #fef08a;">Finał wycieczki: Lotnisko Bergamo</div>
         <div class="player-desc">Odsłuchaj na słuchawkach przed wejściem na pokład samolotu</div>
-        <audio id="special-intro-audio" controls>
+        <audio id="special-intro-audio" preload="metadata">
           <source src="ODCINEK SPECJALNY Lotniskowe podsumowanie 28 godzin we Włoszech.mp3" type="audio/mpeg">
-          Twoja przeglądarka nie obsługuje dźwięku.
         </audio>
+        <div class="big-player" data-audio="special-intro-audio">
+          <div class="big-player-controls">
+            <button type="button" class="btn-big-play" aria-label="Odtwórz lub wstrzymaj">▶</button>
+            <button type="button" class="btn-seek" data-offset="-15">-15s</button>
+            <div class="slider-area">
+              <input type="range" class="big-range" min="0" max="100" step="0.1" value="0">
+              <div class="big-time-row">
+                <span class="time-cur">0:00</span>
+                <span class="time-dur">0:00</span>
+              </div>
+            </div>
+            <button type="button" class="btn-seek" data-offset="15">+15s</button>
+          </div>
+        </div>
       </div>
 
       <button id="btn-back-to-map" class="btn-back-secondary">
@@ -858,9 +1094,30 @@
         <div class="step-counter" id="panel-counter">1 / 10</div>
       </div>
 
-      <audio id="stop-audio" controls style="margin-bottom: 4px;">
+      <audio id="stop-audio" preload="metadata">
         <source id="stop-audio-source" src="" type="audio/mpeg">
       </audio>
+
+      <!-- DUŻY ODTWARZACZ PRZYSTANKU -->
+      <div class="big-player" data-audio="stop-audio">
+        <div class="big-player-controls">
+          <button type="button" class="btn-big-play" aria-label="Odtwórz lub wstrzymaj">▶</button>
+          <button type="button" class="btn-seek" data-offset="-15">-15s</button>
+          <div class="slider-area">
+            <input type="range" class="big-range" min="0" max="100" step="0.1" value="0">
+            <div class="big-time-row">
+              <span class="time-cur">0:00</span>
+              <span class="time-dur">0:00</span>
+            </div>
+          </div>
+          <button type="button" class="btn-seek" data-offset="15">+15s</button>
+        </div>
+      </div>
+
+      <!-- RĘCZNE PRZEJŚCIE DO KOLEJNEGO PRZYSTANKU (POJAWIA SIĘ PO ODSŁUCHU) -->
+      <button id="btn-next-stop" class="btn-next-stop">
+        <span id="btn-next-stop-label">Następny przystanek ➔</span>
+      </button>
 
       <!-- PRZYCISK KONSULTANTA AI NA ŻYWO -->
       <button id="btn-open-ai" class="btn-ask-ai">
@@ -912,16 +1169,9 @@
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    // TWÓJ PRYWATNY ŁĄCZNIK GOOGLE APPS SCRIPT (Z ZASZYTYM KLUCZEM API)
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxaRdA2wG3dYmddN_XMZSuchrqZzIxw0seZxT4lwQt7bS28EpdzkXRYpE0JZ-eExRgL/exec";
-
-    // FUNKCJA ZATRZYMUJĄCA WSZYSTKIE ODTWARZACZE AUDIO NA STRONIE
-    function stopAllAudio() {
-      document.querySelectorAll('audio').forEach(audio => {
-        audio.pause();
-        audio.currentTime = 0;
-      });
-    }
+    const STORAGE_KEY = "wlochy_przewodnik_state_v2";
+    const OFFLINE_CACHE_NAME = "wlochy-przewodnik-offline-v1";
 
     // 1. BOLONIA (10 przystanków)
     const bolognaStops = [
@@ -956,17 +1206,36 @@
       { id: 5, title: "Porta San Giacomo i Mury Weneckie – Granica imperium i alpejski horyzont", coords: [45.7018, 9.6641], file: "PRZYSTANEK 5 Porta San Giacomo i Mury Weneckie – Granica imperium i alpejski horyzont.mp3" }
     ];
 
+    // LISTA WSZYSTKICH PLIKÓW DO POBRANIA OFFLINE
+    const ALL_OFFLINE_FILES = [
+      "./",
+      "index.html",
+      "manifest.json",
+      "Bolonia wstep.mp3",
+      "MEDIOLAN WSTĘP.mp3",
+      "OPOWIEŚĆ DO POCIĄGU Nocna droga ku weneckiej twierdzy.mp3",
+      "ODCINEK SPECJALNY Lotniskowe podsumowanie 28 godzin we Włoszech.mp3",
+      ...bolognaStops.map(s => s.file),
+      ...milanStops.map(s => s.file),
+      ...bergamoStops.map(s => s.file)
+    ];
+
     // ZMIENNE STANU
+    let activeScreen = 'bologna-intro';
     let currentCity = 'bologna';
     let bolognaUnlocked = 1;
     let milanUnlocked = 1;
     let bergamoUnlocked = 1;
+    let milanTabVisible = false;
+    let bergamoTabVisible = false;
     let currentSelectedId = 1;
+    let savedAudioTime = 0;
     let markers = [];
     let map = null;
     let routeLine = null;
     let isMasterUnlocked = false;
     let chatHistory = [];
+    let lastSaveTimestamp = 0;
 
     // DOM EKRANY
     const bolognaIntroScreen = document.getElementById('bologna-intro-screen');
@@ -1000,6 +1269,8 @@
     const stopAudio = document.getElementById('stop-audio');
     const stopAudioSource = document.getElementById('stop-audio-source');
 
+    const btnNextStop = document.getElementById('btn-next-stop');
+    const btnNextStopLabel = document.getElementById('btn-next-stop-label');
     const btnToMilan = document.getElementById('btn-to-milan');
     const btnToBergamo = document.getElementById('btn-to-bergamo');
     const btnToAirportSpecial = document.getElementById('btn-to-airport-special');
@@ -1017,6 +1288,255 @@
     const aiMessages = document.getElementById('ai-messages');
     const aiUserInput = document.getElementById('ai-user-input');
     const btnSendAi = document.getElementById('btn-send-ai');
+
+    // FORMATOWANIE CZASU MM:SS
+    function formatTime(sec) {
+      if (!isFinite(sec) || sec < 0) return "0:00";
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      return `${m}:${s < 10 ? '0' : ''}${s}`;
+    }
+
+    // INICJALIZACJA DUŻYCH ODTWARZACZY DOTYKOWYCH
+    function initBigPlayers() {
+      document.querySelectorAll('.big-player').forEach(playerEl => {
+        const audioId = playerEl.getAttribute('data-audio');
+        const audio = document.getElementById(audioId);
+        const btnPlay = playerEl.querySelector('.btn-big-play');
+        const slider = playerEl.querySelector('.big-range');
+        const curEl = playerEl.querySelector('.time-cur');
+        const durEl = playerEl.querySelector('.time-dur');
+        const seekBtns = playerEl.querySelectorAll('.btn-seek');
+        let isDragging = false;
+
+        btnPlay.addEventListener('click', () => {
+          if (audio.paused) {
+            document.querySelectorAll('audio').forEach(a => {
+              if (a !== audio) a.pause();
+            });
+            audio.play();
+          } else {
+            audio.pause();
+          }
+        });
+
+        seekBtns.forEach(btn => {
+          btn.addEventListener('click', () => {
+            const offset = parseFloat(btn.getAttribute('data-offset'));
+            if (isFinite(audio.duration)) {
+              audio.currentTime = Math.max(0, Math.min(audio.duration, audio.currentTime + offset));
+              saveProgress(true);
+            }
+          });
+        });
+
+        slider.addEventListener('input', () => {
+          isDragging = true;
+          if (isFinite(audio.duration)) {
+            const targetTime = (parseFloat(slider.value) / 100) * audio.duration;
+            curEl.innerText = formatTime(targetTime);
+          }
+        });
+
+        slider.addEventListener('change', () => {
+          if (isFinite(audio.duration)) {
+            audio.currentTime = (parseFloat(slider.value) / 100) * audio.duration;
+            saveProgress(true);
+          }
+          isDragging = false;
+        });
+
+        audio.addEventListener('play', () => {
+          btnPlay.innerText = "❚❚";
+        });
+
+        audio.addEventListener('pause', () => {
+          btnPlay.innerText = "▶";
+          saveProgress(true);
+        });
+
+        audio.addEventListener('loadedmetadata', () => {
+          durEl.innerText = formatTime(audio.duration);
+          if (audioId === 'stop-audio' && savedAudioTime > 0 && savedAudioTime < audio.duration - 1) {
+            audio.currentTime = savedAudioTime;
+            slider.value = (savedAudioTime / audio.duration) * 100;
+            curEl.innerText = formatTime(savedAudioTime);
+            savedAudioTime = 0;
+          }
+        });
+
+        audio.addEventListener('timeupdate', () => {
+          if (!isDragging && isFinite(audio.duration) && audio.duration > 0) {
+            slider.value = (audio.currentTime / audio.duration) * 100;
+            curEl.innerText = formatTime(audio.currentTime);
+          }
+          saveProgress(false);
+        });
+
+        audio.addEventListener('ended', () => {
+          btnPlay.innerText = "▶";
+          saveProgress(true);
+        });
+      });
+    }
+
+    function resetBigPlayerUI(audioId) {
+      const playerEl = document.querySelector(`.big-player[data-audio="${audioId}"]`);
+      if (!playerEl) return;
+      playerEl.querySelector('.btn-big-play').innerText = "▶";
+      playerEl.querySelector('.big-range').value = 0;
+      playerEl.querySelector('.time-cur').innerText = "0:00";
+      playerEl.querySelector('.time-dur').innerText = "0:00";
+    }
+
+    function stopAllAudio() {
+      document.querySelectorAll('audio').forEach(audio => {
+        audio.pause();
+        audio.currentTime = 0;
+        resetBigPlayerUI(audio.id);
+      });
+    }
+
+    // ZAPIS I ODCZYT STANU W LOCALSTORAGE (ODPORNOŚĆ NA RESTART SAFARI NA IPHONE)
+    function saveProgress(force = false) {
+      const now = Date.now();
+      if (!force && now - lastSaveTimestamp < 2500) return;
+      lastSaveTimestamp = now;
+
+      const state = {
+        activeScreen,
+        currentCity,
+        bolognaUnlocked,
+        milanUnlocked,
+        bergamoUnlocked,
+        milanTabVisible,
+        bergamoTabVisible,
+        currentSelectedId,
+        isMasterUnlocked,
+        stopAudioTime: stopAudio ? stopAudio.currentTime : 0
+      };
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {}
+    }
+
+    function restoreProgress() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return false;
+        const s = JSON.parse(raw);
+        if (!s || !s.activeScreen) return false;
+
+        activeScreen = s.activeScreen;
+        currentCity = s.currentCity || 'bologna';
+        bolognaUnlocked = s.bolognaUnlocked || 1;
+        milanUnlocked = s.milanUnlocked || 1;
+        bergamoUnlocked = s.bergamoUnlocked || 1;
+        milanTabVisible = !!s.milanTabVisible;
+        bergamoTabVisible = !!s.bergamoTabVisible;
+        currentSelectedId = s.currentSelectedId || 1;
+        isMasterUnlocked = !!s.isMasterUnlocked;
+        savedAudioTime = s.stopAudioTime || 0;
+
+        if (isMasterUnlocked) {
+          btnStartBologna.removeAttribute('disabled');
+          btnStartBologna.innerHTML = "<span>Rozpocznij spacer</span> ➔";
+          btnStartMilanMap.removeAttribute('disabled');
+          btnStartMilanMap.innerHTML = "<span>Rozpocznij Mediolan</span> ➔";
+          btnStartBergamoMap.removeAttribute('disabled');
+          btnStartBergamoMap.innerHTML = "<span>Rozpocznij Bergamo</span> ➔";
+          timeJumpContainer.style.display = 'block';
+          jumpMilan.style.display = 'flex';
+          jumpBergamo.style.display = 'flex';
+        }
+
+        if (milanTabVisible || isMasterUnlocked) tabMilan.style.display = 'block';
+        if (bergamoTabVisible || isMasterUnlocked) tabBergamo.style.display = 'block';
+
+        if (activeScreen === 'map') {
+          bolognaIntroScreen.style.display = 'none';
+          milanTrainScreen.style.display = 'none';
+          bergamoTrainScreen.style.display = 'none';
+          specialAirportScreen.style.display = 'none';
+          mapScreen.style.display = 'flex';
+          initMap(currentCity, currentSelectedId, true);
+          return true;
+        } else if (activeScreen === 'milan-train') {
+          bolognaIntroScreen.style.display = 'none';
+          milanTrainScreen.style.display = 'flex';
+          return true;
+        } else if (activeScreen === 'bergamo-train') {
+          bolognaIntroScreen.style.display = 'none';
+          bergamoTrainScreen.style.display = 'flex';
+          return true;
+        } else if (activeScreen === 'special-airport') {
+          bolognaIntroScreen.style.display = 'none';
+          specialAirportScreen.style.display = 'flex';
+          return true;
+        }
+      } catch (e) {}
+      return false;
+    }
+
+    // SERVICE WORKER + POBIERANIE CAŁOŚCI OFFLINE
+    const btnDownloadOffline = document.getElementById('btn-download-offline');
+    const offlineTitle = document.getElementById('offline-title');
+    const offlineDesc = document.getElementById('offline-desc');
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+
+    async function checkOfflineStatus() {
+      if (!('caches' in window)) {
+        offlineDesc.innerText = "Twoja przeglądarka nie obsługuje pamięci offline.";
+        btnDownloadOffline.style.display = 'none';
+        return;
+      }
+      try {
+        const cache = await caches.open(OFFLINE_CACHE_NAME);
+        const keys = await cache.keys();
+        if (keys.length >= ALL_OFFLINE_FILES.length - 2) {
+          offlineTitle.innerText = "✅ Gotowe do pracy offline";
+          offlineTitle.style.color = "#4ade80";
+          offlineDesc.innerText = "Wszystkie nagrania MP3 zapisane w telefonie.";
+          btnDownloadOffline.innerText = "✓ Pobrano";
+          btnDownloadOffline.classList.add('ready');
+        }
+      } catch (e) {}
+    }
+
+    btnDownloadOffline.addEventListener('click', async () => {
+      if (!('caches' in window)) return;
+      btnDownloadOffline.disabled = true;
+      const cache = await caches.open(OFFLINE_CACHE_NAME);
+      let done = 0;
+      const total = ALL_OFFLINE_FILES.length;
+
+      for (const file of ALL_OFFLINE_FILES) {
+        try {
+          const encodedUrl = encodeURI(file);
+          const match = await cache.match(encodedUrl);
+          if (!match) {
+            const resp = await fetch(encodedUrl);
+            if (resp.ok) {
+              await cache.put(encodedUrl, resp.clone());
+            }
+          }
+        } catch (err) {}
+        done++;
+        const pct = Math.round((done / total) * 100);
+        btnDownloadOffline.innerText = `${pct}% (${done}/${total})`;
+        offlineDesc.innerText = `Pobieranie plików audio do pamięci telefonu...`;
+      }
+
+      btnDownloadOffline.disabled = false;
+      btnDownloadOffline.innerText = "✓ Pobrano";
+      btnDownloadOffline.classList.add('ready');
+      offlineTitle.innerText = "✅ Gotowe do pracy offline";
+      offlineTitle.style.color = "#4ade80";
+      offlineDesc.innerText = "Nagrania działają teraz bez internetu i roamingu.";
+    });
 
     function getCurrentCityNamePl() {
       if (currentCity === 'bologna') return 'Bolonia';
@@ -1130,7 +1650,7 @@ ZASADY ODPOWIEDZI:
           parts: [{ text: reply }]
         });
       } catch (err) {
-        loadingBubble.innerHTML = `❌ Nie udało się połączyć z przewodnikiem AI: ${err.message}`;
+        loadingBubble.innerHTML = `❌ Brak połączenia z AI (wymaga internetu): ${err.message}`;
         chatHistory.pop();
       } finally {
         btnSendAi.disabled = false;
@@ -1145,8 +1665,9 @@ ZASADY ODPOWIEDZI:
       bolognaUnlocked = bolognaStops.length;
       milanUnlocked = milanStops.length;
       bergamoUnlocked = bergamoStops.length;
+      milanTabVisible = true;
+      bergamoTabVisible = true;
 
-      // Odblokuj przyciski wejścia na mapę także na ekranach pociągów
       btnStartBologna.removeAttribute('disabled');
       btnStartBologna.innerHTML = "<span>Rozpocznij spacer</span> ➔";
 
@@ -1167,8 +1688,10 @@ ZASADY ODPOWIEDZI:
       bergamoTrainScreen.style.display = 'none';
       specialAirportScreen.style.display = 'none';
       mapScreen.style.display = 'flex';
+      activeScreen = 'map';
 
       initMap(currentCity, 1);
+      saveProgress(true);
       alert("🔓 TRYB MASTER AKTYWNY (1509)!\nWszystkie miasta, pociągi, punkty audio, kafelki skoku i odcinek lotniskowy zostały odblokowane.");
     }
 
@@ -1185,12 +1708,14 @@ ZASADY ODPOWIEDZI:
           btnStartBologna.removeAttribute('disabled');
           bolognaIntroScreen.style.display = 'none';
           mapScreen.style.display = 'flex';
+          activeScreen = 'map';
           initMap('bologna', 1);
         } else if (pin === "9892") {
           stopAllAudio();
           bolognaUnlocked = bolognaStops.length;
           bolognaIntroScreen.style.display = 'none';
           mapScreen.style.display = 'flex';
+          activeScreen = 'map';
           initMap('bologna', 10);
         } else if (pin !== null) {
           alert("❌ Nieprawidłowy kod PIN!");
@@ -1202,6 +1727,8 @@ ZASADY ODPOWIEDZI:
           milanTrainScreen.style.display = 'none';
           mapScreen.style.display = 'flex';
           tabMilan.style.display = 'block';
+          milanTabVisible = true;
+          activeScreen = 'map';
           initMap('milan', 1);
         } else if (pin === "9892") {
           stopAllAudio();
@@ -1209,6 +1736,8 @@ ZASADY ODPOWIEDZI:
           milanTrainScreen.style.display = 'none';
           mapScreen.style.display = 'flex';
           tabMilan.style.display = 'block';
+          milanTabVisible = true;
+          activeScreen = 'map';
           initMap('milan', 6);
         } else if (pin !== null) {
           alert("❌ Nieprawidłowy kod PIN!");
@@ -1220,6 +1749,8 @@ ZASADY ODPOWIEDZI:
           bergamoTrainScreen.style.display = 'none';
           mapScreen.style.display = 'flex';
           tabBergamo.style.display = 'block';
+          bergamoTabVisible = true;
+          activeScreen = 'map';
           initMap('bergamo', 1);
         } else if (pin === "9892") {
           stopAllAudio();
@@ -1227,6 +1758,8 @@ ZASADY ODPOWIEDZI:
           bergamoTrainScreen.style.display = 'none';
           mapScreen.style.display = 'flex';
           tabBergamo.style.display = 'block';
+          bergamoTabVisible = true;
+          activeScreen = 'map';
           initMap('bergamo', 5);
         } else if (pin !== null) {
           alert("❌ Nieprawidłowy kod PIN!");
@@ -1236,6 +1769,8 @@ ZASADY ODPOWIEDZI:
           stopAllAudio();
           mapScreen.style.display = 'none';
           specialAirportScreen.style.display = 'flex';
+          activeScreen = 'special-airport';
+          saveProgress(true);
           window.scrollTo(0, 0);
         } else if (pin !== null) {
           alert("❌ Nieprawidłowy kod! Podpowiedź: liczba godzin naszej wyprawy.");
@@ -1259,12 +1794,12 @@ ZASADY ODPOWIEDZI:
         jumpBergamo.style.display = 'flex';
       }
     }
-    checkDateForJumpButtons();
 
     jumpBologna.addEventListener('click', () => {
       stopAllAudio();
       bolognaIntroScreen.style.display = 'none';
       mapScreen.style.display = 'flex';
+      activeScreen = 'map';
       initMap('bologna', 1);
     });
 
@@ -1273,7 +1808,9 @@ ZASADY ODPOWIEDZI:
       bolognaIntroScreen.style.display = 'none';
       mapScreen.style.display = 'flex';
       tabMilan.style.display = 'block';
+      milanTabVisible = true;
       milanUnlocked = milanStops.length;
+      activeScreen = 'map';
       initMap('milan', 1);
     });
 
@@ -1283,7 +1820,10 @@ ZASADY ODPOWIEDZI:
       mapScreen.style.display = 'flex';
       tabMilan.style.display = 'block';
       tabBergamo.style.display = 'block';
+      milanTabVisible = true;
+      bergamoTabVisible = true;
       bergamoUnlocked = bergamoStops.length;
+      activeScreen = 'map';
       initMap('bergamo', 1);
     });
 
@@ -1301,6 +1841,7 @@ ZASADY ODPOWIEDZI:
       stopAllAudio();
       bolognaIntroScreen.style.display = 'none';
       mapScreen.style.display = 'flex';
+      activeScreen = 'map';
       initMap('bologna', 1);
     });
 
@@ -1308,6 +1849,8 @@ ZASADY ODPOWIEDZI:
       stopAllAudio();
       mapScreen.style.display = 'none';
       milanTrainScreen.style.display = 'flex';
+      activeScreen = 'milan-train';
+      saveProgress(true);
       window.scrollTo(0, 0);
     });
 
@@ -1326,20 +1869,25 @@ ZASADY ODPOWIEDZI:
       milanTrainScreen.style.display = 'none';
       mapScreen.style.display = 'flex';
       tabMilan.style.display = 'block';
+      milanTabVisible = true;
+      activeScreen = 'map';
       initMap('milan', 1);
     });
 
-    // POWRÓT Z POCIĄGU MEDIOLAN NA MAPĘ
     btnMilanBackToMap.addEventListener('click', () => {
       stopAllAudio();
       milanTrainScreen.style.display = 'none';
       mapScreen.style.display = 'flex';
+      activeScreen = 'map';
+      saveProgress(true);
     });
 
     btnToBergamo.addEventListener('click', () => {
       stopAllAudio();
       mapScreen.style.display = 'none';
       bergamoTrainScreen.style.display = 'flex';
+      activeScreen = 'bergamo-train';
+      saveProgress(true);
       window.scrollTo(0, 0);
     });
 
@@ -1358,14 +1906,17 @@ ZASADY ODPOWIEDZI:
       bergamoTrainScreen.style.display = 'none';
       mapScreen.style.display = 'flex';
       tabBergamo.style.display = 'block';
+      bergamoTabVisible = true;
+      activeScreen = 'map';
       initMap('bergamo', 1);
     });
 
-    // POWRÓT Z POCIĄGU BERGAMO NA MAPĘ
     btnBergamoBackToMap.addEventListener('click', () => {
       stopAllAudio();
       bergamoTrainScreen.style.display = 'none';
       mapScreen.style.display = 'flex';
+      activeScreen = 'map';
+      saveProgress(true);
     });
 
     btnToAirportSpecial.addEventListener('click', () => {
@@ -1373,6 +1924,8 @@ ZASADY ODPOWIEDZI:
         stopAllAudio();
         mapScreen.style.display = 'none';
         specialAirportScreen.style.display = 'flex';
+        activeScreen = 'special-airport';
+        saveProgress(true);
         window.scrollTo(0, 0);
       } else {
         const pin = prompt("Podaj KOD dostępu do Odcinka Specjalnego (lub Master):");
@@ -1384,23 +1937,25 @@ ZASADY ODPOWIEDZI:
       stopAllAudio();
       specialAirportScreen.style.display = 'none';
       mapScreen.style.display = 'flex';
+      activeScreen = 'map';
+      saveProgress(true);
     });
 
-    tabBologna.addEventListener('click', () => { if (currentCity !== 'bologna') switchCity('bologna', isMasterUnlocked ? currentSelectedId : bolognaUnlocked); });
-    tabMilan.addEventListener('click', () => { if (currentCity !== 'milan') switchCity('milan', isMasterUnlocked ? currentSelectedId : milanUnlocked); });
-    tabBergamo.addEventListener('click', () => { if (currentCity !== 'bergamo') switchCity('bergamo', isMasterUnlocked ? currentSelectedId : bergamoUnlocked); });
+    tabBologna.addEventListener('click', () => { if (currentCity !== 'bologna') switchCity('bologna', isMasterUnlocked ? 1 : bolognaUnlocked); });
+    tabMilan.addEventListener('click', () => { if (currentCity !== 'milan') switchCity('milan', isMasterUnlocked ? 1 : milanUnlocked); });
+    tabBergamo.addEventListener('click', () => { if (currentCity !== 'bergamo') switchCity('bergamo', isMasterUnlocked ? 1 : bergamoUnlocked); });
 
-    function switchCity(city, targetStopId) {
+    function switchCity(city, targetStopId, keepSavedTime = false) {
       stopAllAudio();
       currentCity = city;
       [tabBologna, tabMilan, tabBergamo].forEach(tab => tab.classList.remove('active'));
       if (city === 'bologna') tabBologna.classList.add('active');
       if (city === 'milan') tabMilan.classList.add('active');
       if (city === 'bergamo') tabBergamo.classList.add('active');
-      renderCity(city, targetStopId);
+      renderCity(city, targetStopId, keepSavedTime);
     }
 
-    function initMap(city, startStopId) {
+    function initMap(city, startStopId, keepSavedTime = false) {
       currentCity = city;
       if (!map) {
         map = L.map('map');
@@ -1409,7 +1964,8 @@ ZASADY ODPOWIEDZI:
           maxZoom: 19
         }).addTo(map);
       }
-      switchCity(city, startStopId);
+      setTimeout(() => { if (map) map.invalidateSize(); }, 50);
+      switchCity(city, startStopId, keepSavedTime);
     }
 
     function getCityData(city) {
@@ -1418,7 +1974,7 @@ ZASADY ODPOWIEDZI:
       return { stops: bergamoStops, unlocked: isMasterUnlocked ? 5 : bergamoUnlocked, color: '#0284c7' };
     }
 
-    function renderCity(city, targetStopId) {
+    function renderCity(city, targetStopId, keepSavedTime = false) {
       const data = getCityData(city);
 
       markers.forEach(m => map.removeLayer(m));
@@ -1442,7 +1998,7 @@ ZASADY ODPOWIEDZI:
         const icon = L.divIcon({
           html: markerEl,
           className: '',
-          iconSize: [28, 28]
+          iconSize: [32, 32]
         });
 
         const marker = L.marker(stop.coords, { icon: icon }).addTo(map);
@@ -1460,10 +2016,11 @@ ZASADY ODPOWIEDZI:
 
       map.fitBounds(routeLine.getBounds(), { padding: [40, 40] });
       const validTarget = targetStopId > data.stops.length ? 1 : targetStopId;
-      selectStop(validTarget);
+      selectStop(validTarget, keepSavedTime);
     }
 
-    function selectStop(id) {
+    function selectStop(id, keepSavedTime = false) {
+      if (!keepSavedTime) savedAudioTime = 0;
       stopAllAudio();
       currentSelectedId = id;
       const data = getCityData(currentCity);
@@ -1478,8 +2035,33 @@ ZASADY ODPOWIEDZI:
       map.panTo(stop.coords, { animate: true, duration: 0.8 });
 
       updateMarkersUI();
+      updateNextStopButton();
       checkBannersVisibility();
+      saveProgress(true);
     }
+
+    function updateNextStopButton() {
+      const data = getCityData(currentCity);
+      const nextId = currentSelectedId + 1;
+      const canGoNext = nextId <= data.stops.length && (isMasterUnlocked || nextId <= data.unlocked);
+
+      if (canGoNext) {
+        const nextStop = data.stops.find(s => s.id === nextId);
+        const shortName = nextStop.title.split('–')[0].trim();
+        btnNextStopLabel.innerText = `Następny przystanek: ${nextId}. ${shortName} ➔`;
+        btnNextStop.style.display = 'flex';
+      } else {
+        btnNextStop.style.display = 'none';
+      }
+    }
+
+    btnNextStop.addEventListener('click', () => {
+      const data = getCityData(currentCity);
+      const nextId = currentSelectedId + 1;
+      if (nextId <= data.stops.length && (isMasterUnlocked || nextId <= data.unlocked)) {
+        selectStop(nextId);
+      }
+    });
 
     function updateMarkersUI() {
       const data = getCityData(currentCity);
@@ -1503,34 +2085,36 @@ ZASADY ODPOWIEDZI:
       });
     }
 
+    // PO ZAKOŃCZENIU NAGRANIA: ODBLOKUJ NASTĘPNY PUNKT, ALE ZOSTAŃ NA OBECNYM!
     stopAudio.addEventListener('ended', () => {
       if (isMasterUnlocked) return;
 
       if (currentCity === 'bologna') {
         if (currentSelectedId === bolognaStops.length) {
           btnToMilan.style.display = 'block';
-          btnToMilan.scrollIntoView({ behavior: 'smooth' });
         } else if (currentSelectedId === bolognaUnlocked && bolognaUnlocked < bolognaStops.length) {
           bolognaUnlocked++;
-          selectStop(bolognaUnlocked);
+          updateMarkersUI();
+          updateNextStopButton();
         }
       } else if (currentCity === 'milan') {
         if (currentSelectedId === milanStops.length) {
           btnToBergamo.style.display = 'block';
-          btnToBergamo.scrollIntoView({ behavior: 'smooth' });
         } else if (currentSelectedId === milanUnlocked && milanUnlocked < milanStops.length) {
           milanUnlocked++;
-          selectStop(milanUnlocked);
+          updateMarkersUI();
+          updateNextStopButton();
         }
       } else if (currentCity === 'bergamo') {
         if (currentSelectedId === bergamoStops.length) {
           btnToAirportSpecial.style.display = 'block';
-          btnToAirportSpecial.scrollIntoView({ behavior: 'smooth' });
         } else if (currentSelectedId === bergamoUnlocked && bergamoUnlocked < bergamoStops.length) {
           bergamoUnlocked++;
-          selectStop(bergamoUnlocked);
+          updateMarkersUI();
+          updateNextStopButton();
         }
       }
+      saveProgress(true);
     });
 
     function checkBannersVisibility() {
@@ -1553,6 +2137,12 @@ ZASADY ODPOWIEDZI:
         btnToAirportSpecial.style.display = 'block';
       }
     }
+
+    // START APLIKACJI
+    initBigPlayers();
+    checkDateForJumpButtons();
+    checkOfflineStatus();
+    restoreProgress();
   </script>
 </body>
 </html>
